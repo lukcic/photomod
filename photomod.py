@@ -1,43 +1,43 @@
-"""
-Python app that modify name and size of pictures taken by phone camera to fast and clear view on TV using DLNA. 
-"""
-#work only on files (not dirs, not .py): break, continue
+#Python app that modify name and size of pictures taken by phone camera to fast and clear view on TV using DLNA. 
+'''
+TODO:
 #add path as program argument sys.argv
 #resize files to given format ptyhon image library
-#check for duplicates and delete them: md5
-#error handling (duplicate files)?
-#use regex to work only on .jpg files
+#walking on subfolders
+#add statiscics (log)
+#add or autoinstall send2trash
+#add mp4 support regexJPG = re.compile(r'(\S+\.jpg)|(\S+\.mp4)')
+'''
 
-import os
-import re
-import time
-import shutil
+import os, re, time, shutil, hashlib, send2trash
 
+os.chdir(os.getcwd())                               #change work directory to current directowy
 
-#os.chdir('/home/debian/LearningProjects/Python/exercises')
-os.chdir(os.getcwd())
-
-if not os.path.exists('renamed'):
+if not os.path.exists('renamed'):                   #check if 'renamed' directory exist, if not, create it
     os.makedirs('renamed')
 
-fileList = os.listdir()                     #creating a listh that includes filenames
-
-#regexJPG = re.compile(r'(\S+\.(jpg))')      #\S+ - matches any character without whites, one or more times, \.(jpg matches) '.jpg'  
-                                            #creating regex object
-#print(regexJPG.findall(str(fileList)))      #will search filenames list for regex of .jpg and returns tupples list of mathings (because regex use groups "()")
-
+fileList = os.listdir()                             #creating a listh that includes filenames
 print('Full file list: ' + str(fileList))
-regexJPG = re.compile(r'(\S+\.jpg)')
-#fileList = list(regexJPG.findall(str(fileList)))     #findall() will return list of strings, because regex don't use groups "()" 
-fileList = list(filter(regexJPG.match, fileList))
+
+regexJPG = re.compile(r'(\S+\.jpg)')                #creating regular expression object
+fileList = list(filter(regexJPG.match, fileList))   #filtering fileList using regex object
+hashList = []                                       #creating empty list for file hash strings
 
 for file in fileList:
-    fileSize = str(os.path.getsize(file))   #getsize() method return filesize in bytes 
-    #print(file + str(time.strftime(' %Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(file))))) + '_' + fileSize.zfill(10))
-    newFileName = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(file))))) + '_' + fileSize.zfill(10) + ".jpg"
-    #time.localtime() method of Time module is used to convert a time expressed in seconds since the epoch to a time.struct_time object in local time. 
-    #strftime() function is used to convert date and time objects to their string representation. It takes one or more input of formatted code and returns the string representation.
-    #zfill() method adds zeros (0) at the beginning of the string, until it reaches the specified length.
-    destFile = os.path.join(os.getcwd(), 'renamed', newFileName)
-    print(destFile)
-    shutil.copy(file, destFile)
+    tempHash = (hashlib.md5(open(file, 'rb').read()).hexdigest())   #program is generating md5 checksum from file
+    
+    if tempHash in hashList:                                        #check if hashlist includes gerenated checksum, if yes, delete file (it's duplicate) 
+        send2trash.send2trash(file)
+    else:
+        hashList.append(tempHash)                                   #if not, add checksum to hashlist and work on file
+
+        fileSize = str(os.path.getsize(file))                       #getsize() method return filesize in bytes 
+        newFileName = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getctime(file))))) + '_' + fileSize.zfill(10) + ".jpg"      #creating new filename using modification time (windows) property and filesize
+        #time.localtime() method is used to convert a time expressed in seconds (since the epoch) to a time.struct_time object in local time. 
+        #strftime() function is used to convert date and time objects to their string representation. It takes one or more input of formatted code and returns the string representation.
+        #zfill() method adds zeros (0) at the beginning of the string, until it reaches the specified length.
+        destFile = os.path.join(os.getcwd(), 'renamed', newFileName)    #creating new filename full path, that include 'renamed' subdirectory
+        print(destFile)
+        shutil.copy(file, destFile)                                     #copying file with new name                         
+
+print(hashList)
