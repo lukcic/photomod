@@ -10,12 +10,12 @@ add GUI and options
 '''
 
 import os, re, time, shutil, hashlib, send2trash
-from PIL import Image                               #sudo pip3 install --upgrade Pillow
+from PIL import Image                                       #sudo pip3 install --upgrade Pillow
 
 
 def resizeJPG(file, ratio):
-    image = Image.open(file)                              #creating (opening) image object
-    size = image.size                                     #get image size in pixels (return tuple)
+    image = Image.open(file)                                #creating (opening) image object
+    size = image.size                                       #get image size in pixels (return tuple)
     widthPX = size[0]
     heightPX = size[1]
     image = image.resize((int(widthPX / (1/ratio)), int(heightPX / (1/ratio))))
@@ -43,53 +43,48 @@ def removeDuplicates(fileList):
 
 def rename(fileList):
     for file in fileList:
-        if os.path.isdir(file):
-            continue        
-        fileSize = str(os.path.getsize(file))                       #getsize() method return filesize in bytes 
+        if os.path.isdir(file):                                                                                                                 #exclude directories from renaming (just files)
+            continue                                                                                                                            #if statement = True, then leave this iteration and start next with new file
+        fileSize = str(os.path.getsize(file))                                                                                                   #getsize() method return filesize in bytes 
         newFileName = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(file))))) + '_' + fileSize.zfill(10) + ".jpg"      #creating new filename using modification time (windows) property and filesize
         #time.localtime() method is used to convert a time expressed in seconds (since the epoch) to a time.struct_time object in local time. 
         #strftime() function is used to convert date and time objects to their string representation. It takes one or more input of formatted code and returns the string representation.
         #zfill() method adds zeros (0) at the beginning of the string, until it reaches the specified length.
-        destFile = os.path.join(os.getcwd(), newFileName)    #creating new filename full path, that include 'renamed' subdirectory
+        destFile = os.path.join(os.getcwd(), newFileName)                                                                                       #creating new filename full path from cwd and filename
         print(os.path.basename(file) + ' renamed to: ' + os.path.basename(destFile))
-        shutil.move(file, destFile)                                 #copying file with new name
-    return fileList
-
-def renameAndCopy(fileList, folder):
+        shutil.move(file, destFile)                                                                                                             #renaming file with new name
+ 
+def renameAndCopy(fileList, folder):                                                                                                            #firsth argument is filelist and second is subfolder name where files will be copied with new names
     for file in fileList:
         if os.path.isdir(file):
             continue        
-        fileSize = str(os.path.getsize(file))                       #getsize() method return filesize in bytes 
-        newFileName = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(file))))) + '_' + fileSize.zfill(10) + ".jpg"      #creating new filename using modification time (windows) property and filesize
-        #time.localtime() method is used to convert a time expressed in seconds (since the epoch) to a time.struct_time object in local time. 
-        #strftime() function is used to convert date and time objects to their string representation. It takes one or more input of formatted code and returns the string representation.
-        #zfill() method adds zeros (0) at the beginning of the string, until it reaches the specified length.
-        destFile = os.path.join(os.getcwd(), folder, newFileName)    #creating new filename full path, that include 'renamed' subdirectory
+        fileSize = str(os.path.getsize(file))                                                                                                   
+        newFileName = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(file))))) + '_' + fileSize.zfill(10) + ".jpg"      
+        destFile = os.path.join(os.getcwd(), folder, newFileName)                                                                               #creating new filename full path, that include subdirectory given as second argument
         print(os.path.basename(file) + ' renamed to: ' + '/' + folder + '/' + os.path.basename(destFile))
-        shutil.copy(file, destFile)                                 #copying file with new name
-    return fileList
+        shutil.copy(file, destFile)                                                                                                             #copying file with new name 
 
-os.chdir(os.getcwd())                               #change work directory to current directowy
+os.chdir(os.getcwd())                                   #change work directory to current directowy
 
-if not os.path.exists('renamed'):                   #check if 'renamed' directory exist, if not, create it
+if not os.path.exists('renamed'):                       #check if 'renamed' directory exist, if not, create it
     os.makedirs('renamed')
 
-fullFileList = os.listdir()                             #creating a listh that includes all filenames in pwd directory               
+fullFileList = os.listdir()                             #creating a listh that includes all filenames in cwd directory               
 regexJPG = re.compile(r'(\S+\.jpg)')                    #creating regular expression object for filter only .jpg files, "if filename.endswith('.jpg'):"  may be used
-jpgList = list(filter(regexJPG.match, fullFileList))    #filtering fileList using regex object
+jpgList = list(filter(regexJPG.match, fullFileList))    #filtering fileList using regex object, creating list of jpg files only
 print('JPG list: ' + str(jpgList))
-clearedJpgList = removeDuplicates(jpgList)                 #removing duplicates only from jpg files
+clearedJpgList = removeDuplicates(jpgList)              #removing duplicates only from jpg files
 
-renameAndCopy(clearedJpgList, 'renamed')                             #copying files with changed name
+renameAndCopy(clearedJpgList, 'renamed')                #copying files with changed name, to 'rename' subfolder
 
 os.chdir('renamed')                         
-for file in os.listdir():
+for file in os.listdir():                               #iterate subfolder and exclude directories (work only on files)
     if os.path.isdir(file):
         continue
     else:
-        resizeJPG(file, 0.5)                                #resizing copied files 
-rename(os.listdir())    
+        resizeJPG(file, 0.5)                            #resizing copied files
+rename(os.listdir())                                    #rename files after changing its size
 
 os.chdir('..')
-donorList = list(filter(regexJPG.match, os.listdir()))
-rename(donorList)
+donorList = list(filter(regexJPG.match, os.listdir()))  #create list of jpg files that were copied
+rename(donorList)                                       #rename source files with pattern
