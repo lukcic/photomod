@@ -4,7 +4,6 @@ TODO:
 add path as program argument sys.argv
 add walking on subfolders
 add statiscics (log)
-add mp4 support regexJPG = re.compile(r'(\S+\.jpg)|(\S+\.mp4)')
 add GUI and options
 '''
 
@@ -18,8 +17,9 @@ def install_package(package):                               #function that insta
         import pip
         pip.main(['install', package])
 
-install_package('send2trash')
+
 install_package('Pillow')
+install_package('send2trash')
 from PIL import Image  
 
 def resizeJPG(file, ratio):
@@ -40,7 +40,8 @@ def resizeJPG(file, ratio):
 
 def removeDuplicates(fileList):
     hashList = []                                           #creating empty list for file hash strings
-
+    import send2trash  
+    
     for file in fileList:
         if os.path.isdir(file):
             continue
@@ -48,7 +49,7 @@ def removeDuplicates(fileList):
         tempHash = (hashlib.md5(open(file, 'rb').read()).hexdigest())   #program is generating md5 checksum from file 
         print(file + ' : '+ str(tempHash))
 
-        if tempHash in hashList:                                        #check if hashlist includes gerenated checksum, if yes, delete file (it's duplicate) 
+        if tempHash in hashList:                #check if hashlist includes gerenated checksum, if yes, delete file (it's duplicate) 
             send2trash.send2trash(file)
             fileList.remove(file)
             print(str(hashList))
@@ -81,10 +82,10 @@ def renameAndCopy(fileList, folder):                                            
 
         fileSize = str(os.path.getsize(file))                                                                                                   
         newFileName = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(file))))) + '_' + fileSize.zfill(10) + ".jpg"      
-        destFile = os.path.join(os.getcwd(), folder, newFileName)                                                                               #creating new filename full path, that include subdirectory given as second argument
+        destFile = os.path.join(os.getcwd(), folder, newFileName)       #creating new filename full path, that include subdirectory given as second argument
         print(os.path.basename(file) + ' renamed to: ' + '/' + folder + '/' + os.path.basename(destFile))
-        shutil.copy(file, destFile)
-        os.utime(destFile, (modificationTime, modificationTime))                                                                                                             #copying file with new name 
+        shutil.copy(file, destFile)                                     #copying file with new name 
+        os.utime(destFile, (modificationTime, modificationTime))        
 
 os.chdir(os.getcwd())                                   #change work directory to current directowy
 
