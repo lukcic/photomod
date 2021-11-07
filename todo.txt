@@ -1,0 +1,7 @@
+1. Get all pictures (jpg) and videos (mp4, MTS and 3gp) from given path and copy them to separate folders divided by year. Remove duplicates (report). 
+2. Rename them and move them to separate directories named as a year. 
+3. Resize all pictures and copy them to the temp directory. 
+4. Rename resized pictures and move to 'photomod'/year directory.
+5. Convert all videos using ffmpeg to given resolution aand copy them to temp directory.  
+6. If file starts with 'v' rotate it. 
+7. Rename converted videos and move them to 'photomod'/year.
