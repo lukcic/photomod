@@ -48,3 +48,5 @@ for  item in fullFileList:
         destFile = destFile.lower()
         shutil.copy(item, destFile)
         os.utime(destFile, (modificationTime, modificationTime))
+
+#add logging to spearate files
