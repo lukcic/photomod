@@ -1,11 +1,4 @@
 #Python app that modify name and size of pictures taken by phone camera to fast and clear view on TV using DLNA. 
-'''
-TODO:
-add paths as program argument sys.argv
-add logs
-add GUI and options
-do not resize very small jpgs
-'''
 
 import os, hashlib, send2trash, shutil, time
 
@@ -26,7 +19,7 @@ def makeFileList(path):
     for root, dirs, files in os.walk(path, topdown=True):
         for name in files:
             fileList.append(str(os.path.join(root, name)))
-            print(os.path.join(root, name))
+            #print(os.path.join(root, name))
     return fileList
 
 def renameAndCopy(fileList, folder):                                                                                                            #firsth argument is filelist and second is subfolder name where files will be copied with new names
@@ -57,6 +50,8 @@ def rename(fileList, destPath):
         #time.localtime() method is used to convert a time expressed in seconds (since the epoch) to a time.struct_time object in local time. 
         #strftime() function is used to convert date and time objects to their string representation. It takes one or more input of formatted code and returns the string representation.
         #zfill() method adds zeros (0) at the beginning of the string, until it reaches the specified length.
+        if not os.path.exists(os.path.join(destPath, year)):
+            os.makedirs(os.path.join(destPath,year))
         destFile = os.path.join(destPath, year, newFileName)                                                                                       #creating new filename full path from cwd and filename
         print(os.path.basename(file) + ' renamed to: ' + os.path.basename(destFile))
         shutil.move(file, destFile)          
@@ -76,25 +71,22 @@ def resizeJPG(file, ratio):
     os.utime(file, (modificationTime, modificationTime))    #update modification time from 'now' to old modification time (real image creation time in Win) from variable, os.utime(file, (acess_time, mod_time))
     print(os.path.basename(file) + ' resized from: ' + str(widthPX) + ' x ' + str(heightPX) + ' to: ' + str(image.size[0]) + ' x ' + str(image.size[1]))
 
-import copying_source
+#import copying_source
 
-try:
-    send2trash.send2trash("D:\\photomod_source\\duplicates")
-except:
-    print('No duplicates folder.')
+if __name__ == "__main__":
 
-fullSourceList = makeFileList("d:\\photomod_source")
+    fullSourceList = makeFileList("d:\\photomod_source")
 
-if not os.path.exists('D:\\photomod_dest'):
-    os.makedirs('D:\\photomod_dest')
-renameAndCopy(fullSourceList, 'photomod_dest')
+    if not os.path.exists('D:\\photomod_dest'):
+        os.makedirs('D:\\photomod_dest')
+    renameAndCopy(fullSourceList, 'photomod_dest')
 
-fullDestList = makeFileList('D:\\photomod_dest')
-for file in fullDestList:                               #iterate subfolder and exclude directories (work only on files)
-    if file.endswith('jpg'):
-        resizeJPG(file, 0.5)                            #resizing copied files
-    else:
-        continue
+    fullDestList = makeFileList('D:\\photomod_dest')
+    for file in fullDestList:                               #iterate subfolder and exclude directories (work only on files)
+        if file.endswith('jpg'):
+            resizeJPG(file, 0.5)                            #resizing copied files
+        else:
+            continue
 
-rename(fullDestList, 'D:\\photomod_dest')
-rename(fullSourceList, 'D:\\photomod_source')
+    rename(fullDestList, 'D:\\photomod_dest')
+    #rename(fullSourceList, 'D:\\photomod_source')

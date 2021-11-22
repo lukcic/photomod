@@ -1,7 +1,26 @@
-1. Get all pictures (jpg) and videos (mp4, MTS, mov and 3gp) from given path and copy them to separate folders divided by year. Remove duplicates (report). 
-2. Rename them and move them to separate directories named as a year. 
-3. Resize all destination.
-4. Rename resized pictures.
-5. Convert all videos using ffmpeg to given resolution aand copy them to temp directory.  
-6. If file starts with 'v' rotate it. 
-7. Rename converted videos and move them to 'photomod'/year.
+Copying_source.py:
+-Get list of all pictures (jpg) and videos (mp4, MTS, mov and 3gp) from given path,
+and copy them to new location (photomod_source) with separate subdirectories divided by year. 
+Copying can`t change modification time.
+-Remove duplicates (report everything).
+-Rename all files in 'photomod_source' using unique pattern (CREATION_DATE_TIME_SIZE) taken from metadata. #done for pics) MP4!! use https://exiftool.org
+
+Photomod.py:
+-Copy photos from 'photomod_source' to 'photomod_dest' directory (years division subdirs) with renaming files using unique pattern (CREATION_DATE_TIME_SIZE).
+-Resize all JPGs in 'photomod_dest' with overriding (do not resize small pictures).
+-Rename resized pictures, because size change.
+
+Videomod.py
+-Copy videos from 'photomod_source' to 'photomod_dest' directory (years division subdirs) with renaming files using unique pattern (CREATION_DATE_TIME_SIZE).
+-Convert all videos in 'photomod_dest' using ffmpeg to given resolution (with saving ratio and orientation).  
+-If file starts with 'v' rotate it. 
+-Rename converted videos using unique pattern (CREATION_DATE_TIME_SIZE) - size change.
+
+To add:
+-Getting creation time from file metadata instead os modification time.
+-Add path to 'copying_source.py' as script argument (sys.argv).
+-Add logging to txt file.
+
+-Create robot (cron job) that will add and convert all new (dropped from smartphones) pics and vids from given path to destination repository (home media library).
+Must store hashes and check if file exists before work.
+-Create desktop application (add GUI and options).

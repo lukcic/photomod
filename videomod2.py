@@ -46,3 +46,5 @@ for file in files:
 #1. Files horizontal 
 #2. Files vertical
 #3. Files to rotate
+
+#lowercase names
