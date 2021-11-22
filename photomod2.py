@@ -71,7 +71,6 @@ def resizeJPG(file, ratio):
     os.utime(file, (modificationTime, modificationTime))    #update modification time from 'now' to old modification time (real image creation time in Win) from variable, os.utime(file, (acess_time, mod_time))
     print(os.path.basename(file) + ' resized from: ' + str(widthPX) + ' x ' + str(heightPX) + ' to: ' + str(image.size[0]) + ' x ' + str(image.size[1]))
 
-#import copying_source
 
 if __name__ == "__main__":
 
