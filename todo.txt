@@ -5,6 +5,8 @@ Copying can`t change modification time.
 -Remove duplicates (report everything).
 -Rename all files in 'photomod_source' using unique pattern (CREATION_DATE_TIME_SIZE) taken from metadata. #done for pics) MP4!! use https://exiftool.org
 
+# add saving hashes and filenames as dictionary, moving duplicate source files with copy of file to separate dir
+
 Photomod.py:
 -Copy photos from 'photomod_source' to 'photomod_dest' directory (years division subdirs) with renaming files using unique pattern (CREATION_DATE_TIME_SIZE).
 -Resize all JPGs in 'photomod_dest' with overriding (do not resize small pictures).

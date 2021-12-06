@@ -1,16 +1,16 @@
 # This application copy pictures and movies created using digital camera or smartphone into 2 directories.
 # Firsth directory includes full sizes copies renamed for create historical timeline archive (duplicates are removed).
-# Second copy includes resized pics and movies (converted to mp4) for fast viewing on TV etc. using DLNA
+# Second copy includes resized pics and movies (converted to mp4) for fast viewing on TV etc. using DLNA.
+# Timeline is divided by each year folder.
 
 
 import os, hashlib, shutil, time, subprocess
 
-packages = ['send2trash', 'Image', 'Pillow']  # creating list of needed packages to install
+packages = ['send2trash', 'Image', 'Pillow']                # creating list of needed packages to install
 
-for package in packages:  # installing modules from list
-    depInstaller = subprocess.run(['python', '-m', 'pip', 'install',
-                                   package], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    print(depInstaller.stderr)  # Print erros if occours
+for package in packages:                                    # installing modules from list
+    depInstaller = subprocess.run(['python', '-m', 'pip', 'install', package], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    print(depInstaller.stderr)                              # Print erros if occours
 
 from PIL import Image
 from PIL import ExifTags
@@ -34,8 +34,7 @@ def makeFileList(path):  # Function will save all full-path filenames from given
 
 def renameJPG(jpgFileFullPath):
     fileSize = str(os.path.getsize(jpgFileFullPath))  # getting size of JPG
-    newFileNameFromTime = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(jpgFileFullPath))))) + '_' + fileSize.zfill(10) + '.' + jpgFileFullPath[
-                                                                                                                                                         -3:]
+    newFileNameFromTime = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(jpgFileFullPath))))) + '_' + fileSize.zfill(10) + '.' + jpgFileFullPath[-3:]
     # creating new filename using modification time, get file modification time, convert it to date format and format as needed string, add size in bytes and extension
 
     jpgObject = Image.open(jpgFileFullPath)  # open JPG and store it in variable
@@ -49,8 +48,7 @@ def renameJPG(jpgFileFullPath):
         newFileNameFromExif = newFileNameFromTime
     else:
         newFileNameFromExif = ((jpg_exif[
-            36868]).replace(':', '').replace(' ', '_') + '_' + fileSize.zfill(10) + '.' + jpgFileFullPath[
-                                                                                          -3:])  # have exif, create filename from exif`s DateTime value
+            36868]).replace(':', '').replace(' ', '_') + '_' + fileSize.zfill(10) + '.' + jpgFileFullPath[-3:])  # have exif, create filename from exif`s DateTime value
 
     jpgObject.close()  # close JPG object
 
@@ -65,8 +63,7 @@ def renameAndCopy(fileList, folder):  # firsth argument is filelist and second i
         modificationTime = fileStats.st_mtime
 
         fileSize = str(os.path.getsize(file))
-        newFileName = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(file))))) + '_' + fileSize.zfill(10) + '.' + file[
-                                                                                                                                          -3:]
+        newFileName = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(file))))) + '_' + fileSize.zfill(10) + '.' + file[-3:]
 
         year = time.strftime('%Y', time.localtime(modificationTime))
 
@@ -82,8 +79,7 @@ def renameAndCopy(fileList, folder):  # firsth argument is filelist and second i
 def rename(fileList, destPath):
     for file in fileList:  # if statement = True, then leave this iteration and start next with new file
         fileSize = str(os.path.getsize(file))  # getsize() method return filesize in bytes
-        newFileName = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(file))))) + '_' + fileSize.zfill(10) + '.' + file[
-                                                                                                                                          -3:]  # creating new filename using modification time (windows) property and filesize
+        newFileName = str(time.strftime('%Y%m%d_%H%M%S', time.localtime(int(os.path.getmtime(file))))) + '_' + fileSize.zfill(10) + '.' + file[-3:]  # creating new filename using modification time (windows) property and filesize
         fileStats = os.stat(file)
         modificationTime = fileStats.st_mtime
         year = time.strftime('%Y', time.localtime(modificationTime))
@@ -109,22 +105,15 @@ def resizeJPG(file, ratio):
     size = image.size  # get image size in pixels (return tuple)
     widthPX = size[0]  # save width from tupple to variable
     heightPX = size[1]  # save height from tupple to variable
-    image = image.resize((int(widthPX / (1 / ratio)), int(heightPX / (
-                1 / ratio))))  # resize image object with given ratio (widht/2 == width/(1/0.5))
+    image = image.resize((int(widthPX / (1 / ratio)), int(heightPX / (1 / ratio))))  # resize image object with given ratio (widht/2 == width/(1/0.5))
     image.save(file)  # save resized object to file
-    os.utime(file, (modificationTime,
-                    modificationTime))  # update modification time from 'now' to old modification time (real image creation time in Win) from variable, os.utime(file, (acess_time, mod_time))
-    fullLog.write(os.path.basename(file) + ' resized from: ' + str(widthPX) + ' x ' + str(heightPX) + ' to: ' + str(
-        image.size[0]) + ' x ' + str(image.size[1]))
+    os.utime(file, (modificationTime, modificationTime))  # update modification time from 'now' to old modification time (real image creation time in Win) from variable, os.utime(file, (acess_time, mod_time))
+    fullLog.write(os.path.basename(file) + ' resized from: ' + str(widthPX) + ' x ' + str(heightPX) + ' to: ' + str(image.size[0]) + ' x ' + str(image.size[1]) + '\n')
 
 
 def getInputScale(file):
-    subObj1 = subprocess.run([ffprobeBin, '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width',
-                              '-of', 'default=nw=1:nk=1',
-                              file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    subObj2 = subprocess.run([ffprobeBin, '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=height',
-                              '-of', 'default=nw=1:nk=1',
-                              file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    subObj1 = subprocess.run([ffprobeBin, '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width','-of', 'default=nw=1:nk=1', file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    subObj2 = subprocess.run([ffprobeBin, '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=height','-of', 'default=nw=1:nk=1', file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     width = int(str(subObj1.stdout).partition('\n')[0])  # partition command cuts string into separate lines using '\n'
     height = int(str(subObj2.stdout).partition('\n')[0])  # needed for mts files which have multiple streams
@@ -133,12 +122,17 @@ def getInputScale(file):
 
 
 def resizeVID(inputFile, width, height, outputFile):
+    fileStats = os.stat(inputFile)
+    modificationTime = fileStats.st_mtime
+    
     tempFile = os.path.join(os.getcwd(),os.path.basename(outputFile))
     scale = str('scale=' + width + 'x' + height)
     consoleOut = subprocess.run([ffmpegBin, '-i', inputFile, '-vf', scale, '-preset', 'slow', '-crf', crfValue, tempFile], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    fullLog.write(consoleOut.stderr)
+    #fullLog.write(consoleOut.stderr)
     send2trash.send2trash(inputFile)
     shutil.move(tempFile, outputFile)
+    os.utime(outputFile, (modificationTime, modificationTime))
+  
 
 def setNewScale(width: int, height: int):
     if width > height:
@@ -149,7 +143,6 @@ def setNewScale(width: int, height: int):
         else:
             newWidth = width
             newHeight = height
-
     else:
         #vertical file
         if width >= 1080:
@@ -178,11 +171,12 @@ if __name__ == "__main__":
 
         for name in files:
             name.lower()
-            if name.endswith('jpg') or name.endswith('mp4') or name.endswith('mts') or name.endswith('3gp'):
+            if name.endswith('jpg') or name.endswith('mp4') or name.endswith('mts') or name.endswith('3gp') or name.endswith('jpeg'):
                 fullFileList.append(str(os.path.join(root, name)))
             else:
                 fullLog.write('Not a .jpg or .mp4! ' + name)
                 continue
+         
 
     fullLog.write(' Full list of files to copy: \n')
 
@@ -241,14 +235,20 @@ if __name__ == "__main__":
     print('Renaming source files.')
     fullLog.write(' \n Renaming source files. \n')
 
+    videoList = []
+    
     for file in photoSource:
         file.lower()
         if file.endswith('jpg'):
             renameJPG(file)
         elif file.endswith('jpeg'):
-            shutil.move(file, file.replace('e',''))
+            newJPEGName = file.replace('jpeg','jpg')
+            shutil.move(name, newJPEGName)
+            renameJPG(newJPEGName)
         else:
-            continue
+            videoList.append(file)
+
+    rename(videoList, 'D:\\photomod_source')
 
     # - - - - - - - - - - - - - - Photomod - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -287,19 +287,20 @@ if __name__ == "__main__":
             else:
                 continue
 
-            newScale = setNewScale(int(getInputScale(file)[0]), int(getInputScale(file)[1]))
-            fullLog.write(f'Resize {file} from {getInputScale(file)[0]}x{getInputScale(file)[1]} to {newScale[0]}x{newScale[1]}. \n')
-            resizeVID(file, str(newScale[0]), str(newScale[1]), outputFile)
 
+            if getInputScale(file)[0] < 720 and getInputScale(file)[1] < 720:
+                continue
+            elif getInputScale(file)[0] == 720 and getInputScale(file)[1] == 1280:
+                continue
+            elif getInputScale(file)[0] == 1280 and getInputScale(file)[1] == 720:
+                continue
+            else:
+                newScale = setNewScale(int(getInputScale(file)[0]), int(getInputScale(file)[1]))
+                fullLog.write(f'Resize {file} from {getInputScale(file)[0]}x{getInputScale(file)[1]} to {newScale[0]}x{newScale[1]}. \n')
+                resizeVID(file, str(newScale[0]), str(newScale[1]), outputFile)
+
+    fullDestList = makeFileList('D:\\photomod_dest')
     rename(fullDestList, 'D:\\photomod_dest')
-
-    # for files that are video
-    # create 3 options:
-    # 1. Files horizontal
-    # 2. Files vertical
-    # 3. Files to rotate
-
-    # lowercase names
 
     print('Finish.')
     fullLog.close()
