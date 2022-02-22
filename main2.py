@@ -21,7 +21,7 @@ tych plików i podział na lata. Rename po Exif, potem po ModTime.
 # -resizing rotates some pictures 
 # CREATE TESTS!
 
-import os, hashlib, send2trash, shutil, time, subprocess
+import os, hashlib, shutil, time, subprocess
 
 packages = ['send2trash', 'Image', 'Pillow']                # creating list of needed packages to install
 
@@ -48,20 +48,37 @@ jpgRatio = 0.5
 
 # Functions
 
+
+
+
+
 def resizeJPG(file, ratio):
     image = Image.open(file)                                #creating (opening) image object
     
+    try:
+        exif = image.info['exif']                                       #save resized object to file
+    except Exception:
+        fullLog.write(f'Problem with EXIF of file {file}. \n') 
+
     fileStats = os.stat(file)                               #get file statistics and save it to 'stat_result' object
     modificationTime = fileStats.st_mtime                   #save modification time (in Windows thats picture real creation time) in variable to set it after resizing
     #print('Modification time: ' + time.strftime('%Y%m%d_%H%M%S', time.localtime(modificationTime)))
-
+    
     size = image.size                                       #get image size in pixels (return tuple)
     widthPX = size[0]                                       #save width from tupple to variable
     heightPX = size[1]                                      #save height from tupple to variable
     image = image.resize((int(widthPX / (1/ratio)), int(heightPX / (1/ratio)))) #resize image object with given ratio (widht/2 == width/(1/0.5))
-    image.save(file)                                        #save resized object to file
+    
+    try:
+        image.save(file, exif=exif)                                        #save resized object to file
+    except Exception:
+        fullLog.write(f'Problem with EXIF of file {file}. \n')
+    finally:
+        image.save(file) 
+    
     os.utime(file, (modificationTime, modificationTime))    #update modification time from 'now' to old modification time (real image creation time in Win) from variable, os.utime(file, (acess_time, mod_time))
-    fullLog.write(os.path.basename(file) + ' resized from: ' + str(widthPX) + ' x ' + str(heightPX) + ' to: ' + str(image.size[0]) + ' x ' + str(image.size[1]))
+    
+    fullLog.write(os.path.basename(file) + ' resized from: ' + str(widthPX) + ' x ' + str(heightPX) + ' to: ' + str(image.size[0]) + ' x ' + str(image.size[1]) + '\n')
 
 def renameJPG(jpgFileFullPath):
     fileSize = str(os.path.getsize(jpgFileFullPath))
