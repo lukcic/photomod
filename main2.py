@@ -34,7 +34,7 @@ from PIL import ExifTags
 import send2trash
 
 # Paths definitions
-sourcePath = '\\\qnap\home\Foto Full Res\Różne'
+sourcePath = '../../source_files'
 duplPath = str(os.path.join(os.getcwd(), 'duplicates'))
 fullSizePath = str(os.path.join(os.getcwd(), 'fullSize'))
 resizedPath = str(os.path.join(os.getcwd(), 'resized'))
