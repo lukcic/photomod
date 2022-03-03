@@ -167,7 +167,7 @@ if __name__ == "__main__":
     print('Creating list of files to copy.')
 
     fullFileList = []
-    for root, dirs, files in os.walk("\\\qnap\home\-=TEMP=-\Pieseł", topdown=True):
+    for root, dirs, files in os.walk("\\\qnap\\home\\-=TEMP=-\\Pieseł", topdown=True):
 
         for name in files:
             name.lower()
